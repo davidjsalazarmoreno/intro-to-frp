@@ -13,7 +13,24 @@ document.addEventListener('DOMContentLoaded', function() {
     return Rx.Observable.fromPromise(jQuery.getJSON(requestUrl));
   });
 
+  var suggestion1Stream = responseStream.map(function(listUsers) {
+    // get one random user from list
+    return listUsers[ Math.floor(Math.random()*listUsers.length) ];
+  }).merge(
+    refreshClickStream.map(function() { return null; })
+  ).startWith( null );
+
   responseStream.subscribe(function(response) {
     console.log(response);
+  });
+
+  suggestion1Stream.subscribe(function(suggestion) {
+    if ( suggestion === null ) {
+      // Hide first suggestion DOM Element
+    } else {
+      // Show the first suggestion DOM element
+      // and render data
+      console.log(suggestion);
+    }
   });
 });
