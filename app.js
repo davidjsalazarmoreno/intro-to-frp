@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
   var startupRequestStream = Rx.Observable.just('https://api.github.com/users');
   var refreshButton = document.querySelector('.refresh');
+  var closeButton1 = document.querySelector('.close1');
+  var closeClickStream = Rx.Observable.fromEvent(close1Button, 'click');
   var refreshClickStream = Rx.Observable.fromEvent(refreshButton, 'click');
 
   var requestStream = refreshClickStream.startWith('click at startup').map(function() {
@@ -13,10 +15,12 @@ document.addEventListener('DOMContentLoaded', function() {
     return Rx.Observable.fromPromise(jQuery.getJSON(requestUrl));
   });
 
-  var suggestion1Stream = responseStream.map(function(listUsers) {
-    // get one random user from list
-    return listUsers[ Math.floor(Math.random()*listUsers.length) ];
-  }).merge(
+  var suggestion1Stream = responseStream.startWith('startup click').combineLatest(responseStream,
+    return function(click, listUsers) {
+      // get one random user from list
+      return listUsers[ Math.floor(Math.random()*listUsers.length) ];
+    }
+  ).merge(
     refreshClickStream.map(function() { return null; })
   ).startWith( null );
 
